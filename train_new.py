@@ -14,7 +14,7 @@ from transformers import get_linear_schedule_with_warmup
 
 
 checkpoint = "THUDM/chatglm-6b"
-mixed_precision = 'bf16'
+mixed_precision = 'f16' # for v100 don't support bf16
 lora_config = {
     'r': 32,
     'lora_alpha':32,
@@ -84,7 +84,7 @@ for epoch in range(NUM_EPOCHS):
 
     if accelerator.is_main_process:
         model_id = f"finetune_{epoch}"
-        accelerator.save(lora.lora_state_dict(accelerator.unwrap_model(model)), '/saved/'+model_id+'.pt')
+        accelerator.save(lora.lora_state_dict(accelerator.unwrap_model(model)), 'saved/'+model_id+'.pt')
         
         epoch_loss = all_epoch_loss.float().sum() / (all_step+1).sum()
         total_step += (all_step+1).sum()
