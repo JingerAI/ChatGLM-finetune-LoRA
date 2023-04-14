@@ -7,9 +7,16 @@ We also provide a [finetuned weight](https://github.com/lich99/ChatGLM-finetune-
 
 The minimum required GPU memory is **24G**, **RTX3090** is enough for training.
 
+- 2022/4/12: Add tensorboard. Support finetune the entire model (Much faster convergence and usually has better performance)
 - 2022/3/28: Optimized code structure, more simple and clear. Add training instruction.
 - 2022/3/24: Support **Multi-GPU** training, **DeepSpeed**, Batch collate. Using accelerate to launch `train.py` 
 
+### Inference
+
+| 续写 | 对话 | x |
+|---|---|---|
+|周末适合哪里玩? 周末适合去北京| 如何缓解焦虑? | x |
+|周末适合哪里玩? 周末适合去北京旅游。北京是中国的首都,有着悠久的历史和丰富的文化遗产。在这里你可以参观历史古迹、博物馆和文化遗址等景点。此外,北京的特色美食也不容错过,例如烤鸭和炸酱面等等。如果对历史文化感兴趣的话,建议去故宫、天安门广场、颐和园和长城等地游览;如果喜欢自然风光,可以去八达岭高速或者京承高速公路上自驾游,欣赏美丽的景色。| 焦虑是一种较为常见的情绪反应，当人们面临不确定性、压力或风险时，可能会感到焦虑。以下是一些缓解焦虑的方法：\n\n1. 深呼吸：深呼吸可以帮助你放松身体和心灵。尝试缓慢地吸气，然后缓慢地呼气，重复几次。\n\n2. 渐进性肌肉松弛：这是一种放松身体的技巧，通过逐步收缩和松弛肌肉来减轻身体的紧张感。你可以在背部、腿部和手臂等部位练习渐进性肌肉松弛。\n\n3. 冥想：冥想是一种可以帮助你放松心灵和减轻焦虑的技巧。你可以通过集中注意力、呼吸、放松身体和关注内心的练习来冥想。\n\n4. 运动：运动可以帮助你释放紧张感和压力，同时也可以提高身体和心理的健康状况。你可以尝试跑步、瑜伽、游泳等运动。\n\n5. 寻求支持：与家人、朋友或专业人士谈论你的问题可以帮助你减轻焦虑。你可以寻求心理咨询或与支持团体联系。\n\n6. 改善生活方式：保持健康的饮食、充足的睡眠和规律的锻炼可以帮助你改善身体和心理的健康状况。\n\n请注意，如果你的焦虑症状持续很长时间或影响到你的日常生活，请寻求专业医疗帮助。| x |
 
 ### Easy to use
 
@@ -55,8 +62,20 @@ outputs.loss.backward()
 
 Using [accelerate CLI tool](https://huggingface.co/docs/accelerate/basic_tutorials/launch) to launch multiprocess / distributed training:
 ```
-accelerate launch --config_file config/default_config.yaml train_new.py
+accelerate launch --config_file config/default_config.yaml train.py
 ```
+If you want to finetune the entire model, using
+```
+accelerate launch --config_file config/default_config.yaml train_full.py
+```
+
+Don't forget to change `num_processes` to **the number of GPUs** you want to use.
+
+Now `accelerate` supports **ZeRO 2** (with offload), **ZeRO 3** (with offload)
+
+**Try ZeRO 2 and no offload first, unless you encounter OOM.**
+
+ZeRO 2 (no offload) > ZeRO 2 (offload) > ZeRO 3 (no offload) > ZeRO 3 (offload)
 
 Likes OpenAI's fintune API, the data should be in following structure:  
 ```python
