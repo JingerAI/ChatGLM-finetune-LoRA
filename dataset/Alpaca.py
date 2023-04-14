@@ -21,7 +21,7 @@ def load(path):
 
     pairs = []
 
-    for line in content:
+    for line in content[:1000]:
         if line['input'] == '':
             prompt = PROMPT_DICT['prompt_no_input'].format_map(line)
         else:
